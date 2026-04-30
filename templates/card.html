@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #F5F4F0;
+    --surface:   #FFFFFF;
+    --surface-2: #F9F8F5;
+    --border:    #E8E6E0;
+    --text-1:    #1A1917;
+    --text-2:    #6B6860;
+    --text-3:    #9E9C96;
+    --accent:    #2D5BE3;
+    --accent-lt: #EEF2FC;
+
+    --green:     #1C7C4A;
+    --green-bg:  #EBF6F0;
+    --yellow:    #8A6300;
+    --yellow-bg: #FEF7E6;
+    --red:       #B8372B;
+    --red-bg:    #FDEEEC;
+
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 16px;
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  /* ── Layout ── */
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-bar .logo {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .top-bar .sep { flex: 1; }
+
+  .student-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .student-name {
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+  }
+
+  .student-meta {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-full { grid-column: 1 / -1; }
+
+  .card-title {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Field rows ── */
+  .field {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .field:last-child { border-bottom: none; padding-bottom: 0; }
+  .field:first-child { padding-top: 0; }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--text-2);
+    flex-shrink: 0;
+    font-weight: 400;
+  }
+
+  .field-value {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: right;
+    color: var(--text-1);
+  }
+
+  .field-value a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 12px;
+  }
+  .field-value a:hover { text-decoration: underline; }
+
+  /* ── Badges ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .badge-green  { background: var(--green-bg);  color: var(--green); }
+  .badge-green .badge-dot  { background: var(--green); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+  .badge-yellow .badge-dot { background: var(--yellow); }
+  .badge-red    { background: var(--red-bg);    color: var(--red); }
+  .badge-red .badge-dot    { background: var(--red); }
+  .badge-blue   { background: var(--accent-lt); color: var(--accent); }
+
+  /* ── Metric rows (academic) ── */
+  .metric-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .metric-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .metric-row:first-child { padding-top: 0; }
+
+  .metric-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+
+  .metric-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Progress bar ── */
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bar-track {
+    width: 80px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width .6s ease;
+  }
+
+  .bar-fill.good  { background: var(--green); }
+  .bar-fill.ok    { background: #E8A020; }
+  .bar-fill.low   { background: var(--red); }
+
+  .bar-num {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-1);
+    min-width: 34px;
+    text-align: right;
+  }
+
+  /* ── Info button + tooltip ── */
+  .info-btn {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-3);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color .15s, color .15s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .info-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .info-btn .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: var(--text-1);
+    color: #fff;
+    border-radius: var(--r-sm);
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .15s, transform .15s;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+  }
+
+  .info-btn .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%; right: 6px;
+    border: 5px solid transparent;
+    border-top-color: var(--text-1);
+  }
+
+  .info-btn:hover .tooltip {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── Growth zones ── */
+  .zones-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  .zone-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    background: var(--red-bg);
+    border: 1px solid #f3c6c2;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--red);
+    position: relative;
+  }
+
+  /* ── Raw data accordion ── */
+  .raw-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-2);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: border-color .15s, color .15s;
+    margin-top: 16px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .raw-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+  .raw-toggle svg {
+    transition: transform .25s;
+    flex-shrink: 0;
+  }
+
+  .raw-toggle.open svg { transform: rotate(180deg); }
+
+  .raw-panel {
+    display: none;
+    margin-top: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+
+  .raw-panel.open { display: block; }
+
+  .raw-zone {
+    border-bottom: 1px solid var(--border);
+  }
+  .raw-zone:last-child { border-bottom: none; }
+
+  .raw-zone-header {
+    padding: 10px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text-2);
+    background: var(--surface-2);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .raw-zone-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-3);
+  }
+
+  .raw-items { padding: 8px 14px 12px; }
+
+  .raw-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-1);
+    line-height: 1.4;
+  }
+
+  .raw-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .dot-green  { background: var(--green); }
+  .dot-yellow { background: #E8A020; }
+  .dot-red    { background: var(--red); }
+
+  /* ── Loading state ── */
+  .loading {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-3);
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Fade-in ── */
+  .fade-in {
+    animation: fadeIn .3s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card { animation: fadeIn .35s ease both; }
+  .card:nth-child(2) { animation-delay: .05s; }
+  .card:nth-child(3) { animation-delay: .10s; }
+  .card:nth-child(4) { animation-delay: .15s; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top-bar">
+    <span class="logo">Student Card</span>
+    <span class="sep"></span>
+    <span class="logo" id="card-id">—</span>
+  </div>
+
+  <div id="root">
+    <div class="loading">
+      <div class="spinner"></div>
+      Loading student data…
+    </div>
+  </div>
+</div>
+
+<script>
+const STUDENT_ID = "demo-001";
+
+const ZONE_LABELS = {
+  cognitive:    "Cognitive",
+  executive:    "Executive",
+  behavioural:  "Behavioural",
+  systemic:     "Systemic",
+  motivational: "Motivational",
+};
+
+const LEVEL_CONFIG = {
+  // potential
+  high:    { cls: "green",  label: "High" },
+  medium:  { cls: "yellow", label: "Medium" },
+  low:     { cls: "red",    label: "Low" },
+  // progress
+  strong:  { cls: "green",  label: "Strong" },
+  stable:  { cls: "yellow", label: "Stable" },
+  weak:    { cls: "red",    label: "Weak" },
+  // engagement
+  // high / medium / low already covered above
+  // parent
+  warm:    { cls: "green",  label: "Warm" },
+  neutral: { cls: "yellow", label: "Neutral" },
+  complex: { cls: "red",    label: "Complex" },
+};
+
+function badge(level) {
+  const c = LEVEL_CONFIG[level] || { cls: "blue", label: level };
+  return `<span class="badge badge-${c.cls}">
+    <span class="badge-dot"></span>${c.label}
+  </span>`;
+}
+
+function infoBtn(tooltip) {
+  return `<button class="info-btn" tabindex="0">i
+    <span class="tooltip">${tooltip}</span>
+  </button>`;
+}
+
+function barFill(pct) {
+  const cls = pct >= 75 ? "good" : pct >= 50 ? "ok" : "low";
+  return `<div class="bar-wrap">
+    <div class="bar-track">
+      <div class="bar-fill ${cls}" style="width:${pct}%"></div>
+    </div>
+    <span class="bar-num">${pct}%</span>
+  </div>`;
+}
+
+function classLevelBadge(lvl) {
+  const map = { high: "green", middle: "yellow", low: "red" };
+  const labels = { high: "High", middle: "Middle", low: "Low" };
+  const cls = map[lvl] || "blue";
+  return `<span class="badge badge-${cls}">
+    <span class="badge-dot"></span>${labels[lvl] || lvl}
+  </span>`;
+}
+
+function renderServiceBlock(s) {
+  return `<div class="card">
+    <div class="card-title">Service</div>
+    <div class="field">
+      <span class="field-label">Student</span>
+      <span class="field-value">${s.student_name}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Parent</span>
+      <span class="field-value">${s.parent_name}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Age</span>
+      <span class="field-value">${s.age} y.o.</span>
+    </div>
+    <div class="field">
+      <span class="field-label">City</span>
+      <span class="field-value">${s.city}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Course</span>
+      <span class="field-value">${s.current_course}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Tutor</span>
+      <span class="field-value">${s.tutor_name}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">AMO profile</span>
+      <span class="field-value"><a href="${s.amo_link}" target="_blank">Open in AMO ↗</a></span>
+    </div>
+  </div>`;
+}
+
+function renderSalesBlock(s) {
+  const chk = s.last_package_check;
+  const checkDate = new Date(chk.date).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"});
+  return `<div class="card">
+    <div class="card-title">Sales</div>
+    <div class="field">
+      <span class="field-label">Class level</span>
+      <span class="field-value">${classLevelBadge(s.class_level)}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Last check</span>
+      <span class="field-value">${checkDate}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Paid classes (last check)</span>
+      <span class="field-value">${chk.paid_classes}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Total lessons</span>
+      <span class="field-value">${s.total_lessons}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Format</span>
+      <span class="field-value" style="text-transform:capitalize">${s.class_type}</span>
+    </div>
+    <div class="field">
+      <span class="field-label">Prolongations</span>
+      <span class="field-value">${s.prolongations}</span>
+    </div>
+  </div>`;
+}
+
+function renderRawData(rawData) {
+  const zones = Object.entries(rawData);
+  const items = zones.map(([key, zone]) => {
+    const itemsHtml = zone.items.map(item =>
+      `<div class="raw-item">
+        <span class="raw-dot dot-${item.color}"></span>
+        <span>${item.text}</span>
+      </div>`
+    ).join("");
+    const scoreDisplay = (zone.score >= 0 ? "+" : "") + zone.score.toFixed(2);
+    return `<div class="raw-zone">
+      <div class="raw-zone-header">
+        <span>${zone.label}</span>
+        <span class="raw-zone-score">score ${scoreDisplay}</span>
+      </div>
+      <div class="raw-items">${itemsHtml}</div>
+    </div>`;
+  }).join("");
+
+  return `<button class="raw-toggle" id="rawToggle">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Raw survey data
+  </button>
+  <div class="raw-panel" id="rawPanel">${items}</div>`;
+}
+
+function renderAcademicBlock(a) {
+  const growthHtml = a.growth_zones.map(z =>
+    `<div class="zone-chip">
+      ${ZONE_LABELS[z.key]}
+      ${infoBtn(z.tooltip)}
+    </div>`
+  ).join("");
+
+  return `<div class="card card-full">
+    <div class="card-title">Academic</div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Attendance rate</span>
+      </div>
+      <div class="metric-right">
+        ${barFill(a.attendance_rate)}
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Solution rate</span>
+      </div>
+      <div class="metric-right">
+        ${barFill(a.solution_rate)}
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Potential</span>
+        ${infoBtn(a.potential.tooltip)}
+      </div>
+      <div class="metric-right">
+        ${badge(a.potential.level)}
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Progress</span>
+        ${infoBtn(a.progress.tooltip)}
+      </div>
+      <div class="metric-right">
+        ${badge(a.progress.level)}
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Engagement</span>
+        ${infoBtn(a.engagement.tooltip)}
+      </div>
+      <div class="metric-right">
+        ${badge(a.engagement.level)}
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Growth zones</span>
+      </div>
+      <div class="metric-right">
+        <div class="zones-list">${growthHtml}</div>
+      </div>
+    </div>
+
+    <div class="metric-row">
+      <div class="metric-left">
+        <span class="metric-label">Parent</span>
+        ${infoBtn(a.parent.tooltip)}
+      </div>
+      <div class="metric-right">
+        ${badge(a.parent.level)}
+      </div>
+    </div>
+
+    ${renderRawData(a.raw_data)}
+  </div>`;
+}
+
+function render(data) {
+  document.getElementById("card-id").textContent = "ID " + STUDENT_ID;
+
+  const header = `<div class="student-header fade-in">
+    <h1 class="student-name">${data.service.student_name}</h1>
+    <span class="student-meta">${data.service.age} y.o. · ${data.service.city}</span>
+  </div>`;
+
+  const grid = `<div class="grid">
+    ${renderServiceBlock(data.service)}
+    ${renderSalesBlock(data.sales)}
+    ${renderAcademicBlock(data.academic)}
+  </div>`;
+
+  document.getElementById("root").innerHTML = header + grid;
+
+  // Raw data toggle
+  const btn = document.getElementById("rawToggle");
+  const panel = document.getElementById("rawPanel");
+  if (btn && panel) {
+    btn.addEventListener("click", () => {
+      const open = panel.classList.toggle("open");
+      btn.classList.toggle("open", open);
+    });
+  }
+}
+
+fetch(`/api/student/${STUDENT_ID}`)
+  .then(r => r.json())
+  .then(render)
+  .catch(err => {
+    document.getElementById("root").innerHTML =
+      `<div class="loading">Failed to load: ${err.message}</div>`;
+  });
+</script>
+</body>
+</html>
