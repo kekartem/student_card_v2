@@ -5,750 +5,530 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Card</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg:        #F5F4F0;
-    --surface:   #FFFFFF;
-    --surface-2: #F9F8F5;
-    --border:    #E8E6E0;
-    --text-1:    #1A1917;
-    --text-2:    #6B6860;
-    --text-3:    #9E9C96;
-    --accent:    #2D5BE3;
-    --accent-lt: #EEF2FC;
+:root {
+  --bg:   #F0EEE9; --sur:  #FFFFFF; --s2:   #F7F6F3; --bd:   #DDD9D2;
+  --bd2:  #E8E5DF; --t1:   #1A1814; --t2:   #4A4740; --t3:   #8A877F;
+  --t4:   #B8B5AE; --acc:  #3461E8; --acc2: #EBF0FF;
+  --gr:   #166534; --gr2:  #DCFCE7; --gr3:  #86EFAC;
+  --ye:   #92400E; --ye2:  #FEF3C7; --ye3:  #FCD34D;
+  --re:   #991B1B; --re2:  #FEE2E2; --re3:  #FCA5A5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;min-height:100vh}
+/* Topbar */
+.topbar{background:#141210;height:52px;display:flex;align-items:center;padding:0 20px;gap:16px;position:sticky;top:0;z-index:100}
+.topbar-logo{color:#fff;font-weight:700;font-size:15px;letter-spacing:-.3px;white-space:nowrap}
+.topbar-search{display:flex;gap:8px;flex:1;max-width:480px;margin:0 auto}
+.topbar-search input{flex:1;background:#2a2722;border:1px solid #3a3733;border-radius:8px;padding:0 12px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;outline:none}
+.topbar-search input::placeholder{color:#6b6760}
+.topbar-search input:focus{border-color:#3461E8}
+.topbar-btn{background:var(--acc);color:#fff;border:none;border-radius:8px;padding:0 16px;height:34px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.topbar-btn:hover{background:#2550d0}
+.topbar-link{color:#8a8780;font-size:13px;text-decoration:none;white-space:nowrap}
+.topbar-link:hover{color:#fff}
 
-    --green:     #1C7C4A;
-    --green-bg:  #EBF6F0;
-    --yellow:    #8A6300;
-    --yellow-bg: #FEF7E6;
-    --red:       #B8372B;
-    --red-bg:    #FDEEEC;
+/* Layout */
+.page{max-width:1200px;margin:0 auto;padding:24px 20px}
+.hero{margin-bottom:20px}
+.hero-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hero-name{font-size:30px;font-weight:700;line-height:1.1;letter-spacing:-.5px}
+.hero-links{display:flex;gap:8px;align-items:center}
+.hero-btn{display:inline-flex;align-items:center;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
+.hero-btn-amo{background:var(--acc2);color:var(--acc);border:1px solid #c8d7fa}
+.hero-btn-amo:hover{background:#dde8ff}
+.hero-btn-lms{background:#f3f0ff;color:#5b21b6;border:1px solid #c4b5fd}
+.hero-btn-lms:hover{background:#ede9fe}
+.columns{display:grid;grid-template-columns:300px 1fr;gap:20px}
+@media(max-width:860px){.columns{grid-template-columns:1fr}}
 
-    --r-sm: 8px;
-    --r-md: 12px;
-    --r-lg: 16px;
+/* Panels */
+.panel{background:var(--sur);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:16px}
+.panel-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:14px}
 
-    --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.04);
-  }
+/* Key-value table */
+.kv-table{width:100%;border-collapse:collapse}
+.kv-table tr{border-bottom:1px solid var(--bd2)}
+.kv-table tr:last-child{border-bottom:none}
+.kv-table td{padding:7px 0;vertical-align:top}
+.kv-table td:first-child{color:var(--t3);width:110px;font-size:12px;padding-right:8px}
+.kv-table a{color:var(--acc);text-decoration:none;font-size:12px}
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* Big numbers grid */
+.big-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.big-num-box{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:12px 10px;text-align:center}
+.big-num-val{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;line-height:1;color:var(--t1)}
+.big-num-label{font-size:11px;color:var(--t3);margin-top:4px}
+.tooltip-wrap{position:relative;display:inline-flex;align-items:center;gap:4px}
+.tooltip-wrap .tip-icon{color:var(--t4);cursor:default;font-size:12px}
+.tooltip-wrap:hover .tip-box{display:block}
+.tip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1A1814;color:#fff;font-size:12px;line-height:1.4;padding:8px 10px;border-radius:8px;width:200px;z-index:200;pointer-events:none;white-space:normal;text-align:left;text-transform:none;letter-spacing:0;font-weight:400}
+.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#1A1814}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text-1);
-    min-height: 100vh;
-    padding: 24px 16px 48px;
-  }
+/* Small boxes grid */
+.small-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.small-box{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:10px}
+.small-box-val{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:var(--t1)}
+.small-box-label{font-size:11px;color:var(--t3);margin-top:2px}
 
-  /* ── Layout ── */
-  .page {
-    max-width: 900px;
-    margin: 0 auto;
-  }
+/* Class level */
+.class-level-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.badge-green{background:var(--gr2);color:var(--gr);border:1px solid var(--gr3)}
+.badge-yellow{background:var(--ye2);color:var(--ye);border:1px solid var(--ye3)}
+.badge-red{background:var(--re2);color:var(--re);border:1px solid var(--re3)}
+.class-detail-table{width:100%;border-collapse:collapse}
+.class-detail-table tr{border-bottom:1px solid var(--bd2)}
+.class-detail-table tr:last-child{border-bottom:none}
+.class-detail-table td{padding:5px 0;font-size:12px}
+.class-detail-table td:first-child{color:var(--t3);width:90px}
 
-  .top-bar {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border);
-  }
+/* Rate cards */
+.rate-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.rate-card{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:18px}
+.rate-label{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.rate-val{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:600;line-height:1}
+.rate-bar-wrap{height:4px;background:var(--bd2);border-radius:4px;margin-top:10px;overflow:hidden}
+.rate-bar{height:100%;border-radius:4px;transition:width .4s}
 
-  .top-bar .logo {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--text-3);
-  }
+/* Academic zones row */
+.zones-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.zone-card{background:var(--sur);border:2px solid var(--bd);border-radius:14px;padding:16px;cursor:pointer;transition:border-color .2s,box-shadow .2s;user-select:none}
+.zone-card:hover{border-color:#aaa}
+.zone-card.active-zone{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc2)}
+.zone-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.zone-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3)}
+.zone-label-wrap{display:flex;align-items:center;gap:5px}
+.zone-tip-wrap{position:relative;font-size:11px;color:var(--t4);cursor:default;line-height:1}
+.zone-tip-wrap:hover .zone-tip-box{display:block}
+.zone-tip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:0;background:#1A1814;color:#fff;font-size:12px;font-weight:400;line-height:1.5;padding:10px 12px;border-radius:8px;width:240px;z-index:300;pointer-events:none;text-transform:none;letter-spacing:0;white-space:normal}
+.zone-tip-box::after{content:'';position:absolute;top:100%;left:10px;border:5px solid transparent;border-top-color:#1A1814}
+.zone-level-badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+.zone-score{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;line-height:1;margin-bottom:4px}
+.zone-score-sub{font-size:12px;color:var(--t3)}
+.zone-hint{font-size:12px;color:var(--t2);line-height:1.4;margin-top:10px;padding-top:10px;border-top:1px solid var(--bd2)}
+.zone-hint-tabs{display:flex;gap:6px;margin-bottom:10px}
+.hint-tab{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;background:var(--s2);color:var(--t3);border:1px solid var(--bd2)}
+.hint-tab.active{background:var(--acc2);color:var(--acc);border-color:#c8d7fa}
+.hint-content{font-size:13px;line-height:1.5;color:var(--t2)}
 
-  .top-bar .sep { flex: 1; }
+/* Checkboxes block */
+.cb-block{background:var(--sur);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;margin-bottom:20px}
+.cb-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cb-block-title{font-size:13px;font-weight:600;color:var(--t1)}
+.cb-block-hint{font-size:12px;color:var(--t3)}
+.cb-zones-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.cb-zone-group{padding:12px 14px}
+.cb-zone-group:nth-child(odd){border-right:1px solid var(--bd2)}
+.cb-zone-group:nth-child(n+3){border-top:1px solid var(--bd2)}
+.cb-zone-group:last-child:nth-child(odd){grid-column:1/-1;border-right:none}
+.cb-zone-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:7px;display:flex;align-items:center;gap:5px}
+.cb-zone-label .zone-icon{font-size:13px}
+.cb-items{display:flex;flex-direction:column;gap:3px}
+.cb-item{display:flex;align-items:flex-start;gap:7px;padding:4px 8px;border-radius:6px;border:1px solid transparent;transition:background .15s,border-color .15s,opacity .15s}
+.cb-item.w2{border-left:2px solid var(--gr3)}
+.cb-item.w1{border-left:2px solid var(--ye3)}
+.cb-item.wn{border-left:2px solid var(--re3)}
+.cb-item-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cb-item.w2 .cb-item-dot{background:var(--gr)}
+.cb-item.w1 .cb-item-dot{background:#d97706}
+.cb-item.wn .cb-item-dot{background:var(--re)}
+.cb-item-text{font-size:12px;color:var(--t2);line-height:1.35}
+/* highlighted state */
+.cb-item.highlighted{background:var(--acc2);border-color:#c8d7fa}
+.cb-item.highlighted .cb-item-text{color:var(--acc);font-weight:500}
+/* dimmed state */
+.cb-item.dimmed{opacity:.28}
 
-  .student-header {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
+/* Growth zones */
+.growth-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.growth-card{background:var(--re2);border:1px solid var(--re3);border-radius:12px;padding:16px}
+.growth-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--re);margin-bottom:10px}
+.growth-items{display:flex;flex-direction:column;gap:6px}
+.growth-item{font-size:12px;color:#7f1d1d;line-height:1.4;display:flex;gap:6px}
+.growth-item::before{content:'●';flex-shrink:0;font-size:8px;margin-top:4px}
 
-  .student-name {
-    font-size: 26px;
-    font-weight: 600;
-    letter-spacing: -.02em;
-    line-height: 1.1;
-  }
+/* Bottom row */
+.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.motivators-card{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.motivator-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.motivator-tag{background:var(--acc2);color:var(--acc);border:1px solid #c8d7fa;border-radius:8px;padding:6px 12px}
+.motivator-tag-title{font-size:12px;font-weight:700}
+.motivator-tag-desc{font-size:11px;color:var(--t3);margin-top:2px}
+.parent-card{background:var(--sur);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.parent-value{font-size:13px;line-height:1.4;padding:10px 12px;border-radius:8px;margin-top:10px}
 
-  .student-meta {
-    font-size: 13px;
-    color: var(--text-2);
-    font-weight: 400;
-  }
+/* Survey incomplete notice */
+.notice-yellow{background:var(--ye2);border:1px solid var(--ye3);border-radius:12px;padding:18px 20px;color:var(--ye);font-size:14px;margin-bottom:20px}
+.notice-yellow strong{font-weight:700}
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
+/* Empty / loading states */
+.empty-state{text-align:center;padding:80px 20px;color:var(--t3)}
+.empty-state h2{font-size:20px;font-weight:600;color:var(--t2);margin-bottom:8px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  .grid-3 {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  @media (min-width: 640px) {
-    .grid-3 { grid-template-columns: 1fr 1fr; }
-  }
-
-  /* ── Cards ── */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .card-full { grid-column: 1 / -1; }
-
-  .card-title {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    color: var(--text-3);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  /* ── Field rows ── */
-  .field {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .field:last-child { border-bottom: none; padding-bottom: 0; }
-  .field:first-child { padding-top: 0; }
-
-  .field-label {
-    font-size: 12px;
-    color: var(--text-2);
-    flex-shrink: 0;
-    font-weight: 400;
-  }
-
-  .field-value {
-    font-size: 13px;
-    font-weight: 500;
-    text-align: right;
-    color: var(--text-1);
-  }
-
-  .field-value a {
-    color: var(--accent);
-    text-decoration: none;
-    font-size: 12px;
-  }
-  .field-value a:hover { text-decoration: underline; }
-
-  /* ── Badges ── */
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 3px 9px;
-    border-radius: 100px;
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.5;
-  }
-
-  .badge-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .badge-green  { background: var(--green-bg);  color: var(--green); }
-  .badge-green .badge-dot  { background: var(--green); }
-  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
-  .badge-yellow .badge-dot { background: var(--yellow); }
-  .badge-red    { background: var(--red-bg);    color: var(--red); }
-  .badge-red .badge-dot    { background: var(--red); }
-  .badge-blue   { background: var(--accent-lt); color: var(--accent); }
-
-  /* ── Metric rows (academic) ── */
-  .metric-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .metric-row:last-child { border-bottom: none; padding-bottom: 0; }
-  .metric-row:first-child { padding-top: 0; }
-
-  .metric-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-  }
-
-  .metric-label {
-    font-size: 12px;
-    color: var(--text-2);
-    white-space: nowrap;
-  }
-
-  .metric-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  /* ── Progress bar ── */
-  .bar-wrap {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .bar-track {
-    width: 80px;
-    height: 4px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--accent);
-    transition: width .6s ease;
-  }
-
-  .bar-fill.good  { background: var(--green); }
-  .bar-fill.ok    { background: #E8A020; }
-  .bar-fill.low   { background: var(--red); }
-
-  .bar-num {
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'DM Mono', monospace;
-    color: var(--text-1);
-    min-width: 34px;
-    text-align: right;
-  }
-
-  /* ── Info button + tooltip ── */
-  .info-btn {
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    border: 1.5px solid var(--border);
-    background: var(--surface-2);
-    color: var(--text-3);
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    flex-shrink: 0;
-    transition: border-color .15s, color .15s;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .info-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .info-btn .tooltip {
-    position: absolute;
-    bottom: calc(100% + 8px);
-    right: 0;
-    width: 220px;
-    background: var(--text-1);
-    color: #fff;
-    border-radius: var(--r-sm);
-    padding: 10px 12px;
-    font-size: 12px;
-    line-height: 1.5;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 400;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(4px);
-    transition: opacity .15s, transform .15s;
-    z-index: 100;
-    box-shadow: var(--shadow-md);
-  }
-
-  .info-btn .tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%; right: 6px;
-    border: 5px solid transparent;
-    border-top-color: var(--text-1);
-  }
-
-  .info-btn:hover .tooltip {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* ── Growth zones ── */
-  .zones-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding-top: 4px;
-  }
-
-  .zone-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 10px;
-    background: var(--red-bg);
-    border: 1px solid #f3c6c2;
-    border-radius: var(--r-sm);
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--red);
-    position: relative;
-  }
-
-  /* ── Raw data accordion ── */
-  .raw-toggle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    padding: 8px 12px;
-    font-size: 12px;
-    color: var(--text-2);
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    transition: border-color .15s, color .15s;
-    margin-top: 16px;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .raw-toggle:hover { border-color: var(--accent); color: var(--accent); }
-
-  .raw-toggle svg {
-    transition: transform .25s;
-    flex-shrink: 0;
-  }
-
-  .raw-toggle.open svg { transform: rotate(180deg); }
-
-  .raw-panel {
-    display: none;
-    margin-top: 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    overflow: hidden;
-  }
-
-  .raw-panel.open { display: block; }
-
-  .raw-zone {
-    border-bottom: 1px solid var(--border);
-  }
-  .raw-zone:last-child { border-bottom: none; }
-
-  .raw-zone-header {
-    padding: 10px 14px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: .06em;
-    text-transform: uppercase;
-    color: var(--text-2);
-    background: var(--surface-2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .raw-zone-score {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-3);
-  }
-
-  .raw-items { padding: 8px 14px 12px; }
-
-  .raw-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 5px 0;
-    font-size: 12px;
-    color: var(--text-1);
-    line-height: 1.4;
-  }
-
-  .raw-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
-
-  .dot-green  { background: var(--green); }
-  .dot-yellow { background: #E8A020; }
-  .dot-red    { background: var(--red); }
-
-  /* ── Loading state ── */
-  .loading {
-    text-align: center;
-    padding: 60px 0;
-    color: var(--text-3);
-    font-size: 13px;
-  }
-
-  .spinner {
-    width: 24px; height: 24px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
-    margin: 0 auto 12px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ── Fade-in ── */
-  .fade-in {
-    animation: fadeIn .3s ease both;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .card { animation: fadeIn .35s ease both; }
-  .card:nth-child(2) { animation-delay: .05s; }
-  .card:nth-child(3) { animation-delay: .10s; }
-  .card:nth-child(4) { animation-delay: .15s; }
 </style>
 </head>
 <body>
-<div class="page">
-  <div class="top-bar">
-    <span class="logo">Student Card</span>
-    <span class="sep"></span>
-    <span class="logo" id="card-id">—</span>
-  </div>
 
+<div class="topbar">
+  <span class="topbar-logo">Student Card</span>
+  <div class="topbar-search">
+    <input type="text" id="amoInput" placeholder="AMO ID (e.g. 69c92748dcb57fafabddbfd0)" onkeydown="if(event.key==='Enter')doSearch()">
+    <button class="topbar-btn" onclick="doSearch()">Find</button>
+  </div>
+  <a class="topbar-link" href="/survey">Tutor Survey →</a>
+</div>
+
+<div class="page">
   <div id="root">
-    <div class="loading">
-      <div class="spinner"></div>
-      Loading student data…
+    <div class="empty-state">
+      <h2>Enter an AMO ID to load a student card</h2>
+      <p>Paste the AMO contact ID in the search field above</p>
     </div>
   </div>
 </div>
 
 <script>
-const STUDENT_ID = "demo-001";
+let currentData = null;
+let activeZone = null; // 'potential' | 'progress' | 'engagement' | null
+let activeHintTab = {}; // zone → tab
 
-const ZONE_LABELS = {
-  cognitive:    "Cognitive",
-  executive:    "Executive",
-  behavioural:  "Behavioural",
-  systemic:     "Systemic",
-  motivational: "Motivational",
-};
-
-const LEVEL_CONFIG = {
-  // potential
-  high:    { cls: "green",  label: "High" },
-  medium:  { cls: "yellow", label: "Medium" },
-  low:     { cls: "red",    label: "Low" },
-  // progress
-  strong:  { cls: "green",  label: "Strong" },
-  stable:  { cls: "yellow", label: "Stable" },
-  weak:    { cls: "red",    label: "Weak" },
-  // engagement
-  // high / medium / low already covered above
-  // parent
-  warm:    { cls: "green",  label: "Warm" },
-  neutral: { cls: "yellow", label: "Neutral" },
-  complex: { cls: "red",    label: "Complex" },
-};
-
-function badge(level) {
-  const c = LEVEL_CONFIG[level] || { cls: "blue", label: level };
-  return `<span class="badge badge-${c.cls}">
-    <span class="badge-dot"></span>${c.label}
-  </span>`;
-}
-
-function infoBtn(tooltip) {
-  return `<button class="info-btn" tabindex="0">i
-    <span class="tooltip">${tooltip}</span>
-  </button>`;
-}
-
-function barFill(pct) {
-  const cls = pct >= 75 ? "good" : pct >= 50 ? "ok" : "low";
-  return `<div class="bar-wrap">
-    <div class="bar-track">
-      <div class="bar-fill ${cls}" style="width:${pct}%"></div>
-    </div>
-    <span class="bar-num">${pct}%</span>
-  </div>`;
-}
-
-function classLevelBadge(lvl) {
-  const map = { high: "green", middle: "yellow", low: "red" };
-  const labels = { high: "High", middle: "Middle", low: "Low" };
-  const cls = map[lvl] || "blue";
-  return `<span class="badge badge-${cls}">
-    <span class="badge-dot"></span>${labels[lvl] || lvl}
-  </span>`;
-}
-
-function renderServiceBlock(s) {
-  return `<div class="card">
-    <div class="card-title">Service</div>
-    <div class="field">
-      <span class="field-label">Student</span>
-      <span class="field-value">${s.student_name}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Parent</span>
-      <span class="field-value">${s.parent_name}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Age</span>
-      <span class="field-value">${s.age} y.o.</span>
-    </div>
-    <div class="field">
-      <span class="field-label">City</span>
-      <span class="field-value">${s.city}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Course</span>
-      <span class="field-value">${s.current_course}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Tutor</span>
-      <span class="field-value">${s.tutor_name}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">AMO profile</span>
-      <span class="field-value"><a href="${s.amo_link}" target="_blank">Open in AMO ↗</a></span>
-    </div>
-  </div>`;
-}
-
-function renderSalesBlock(s) {
-  const chk = s.last_package_check;
-  const checkDate = new Date(chk.date).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"});
-  return `<div class="card">
-    <div class="card-title">Sales</div>
-    <div class="field">
-      <span class="field-label">Class level</span>
-      <span class="field-value">${classLevelBadge(s.class_level)}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Last check</span>
-      <span class="field-value">${checkDate}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Paid classes (last check)</span>
-      <span class="field-value">${chk.paid_classes}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Total lessons</span>
-      <span class="field-value">${s.total_lessons}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Format</span>
-      <span class="field-value" style="text-transform:capitalize">${s.class_type}</span>
-    </div>
-    <div class="field">
-      <span class="field-label">Prolongations</span>
-      <span class="field-value">${s.prolongations}</span>
-    </div>
-  </div>`;
-}
-
-function renderRawData(rawData) {
-  const zones = Object.entries(rawData);
-  const items = zones.map(([key, zone]) => {
-    const itemsHtml = zone.items.map(item =>
-      `<div class="raw-item">
-        <span class="raw-dot dot-${item.color}"></span>
-        <span>${item.text}</span>
-      </div>`
-    ).join("");
-    const scoreDisplay = (zone.score >= 0 ? "+" : "") + zone.score.toFixed(2);
-    return `<div class="raw-zone">
-      <div class="raw-zone-header">
-        <span>${zone.label}</span>
-        <span class="raw-zone-score">score ${scoreDisplay}</span>
-      </div>
-      <div class="raw-items">${itemsHtml}</div>
-    </div>`;
-  }).join("");
-
-  return `<button class="raw-toggle" id="rawToggle">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Raw survey data
-  </button>
-  <div class="raw-panel" id="rawPanel">${items}</div>`;
-}
-
-function renderAcademicBlock(a) {
-  const growthHtml = a.growth_zones.map(z =>
-    `<div class="zone-chip">
-      ${ZONE_LABELS[z.key]}
-      ${infoBtn(z.tooltip)}
-    </div>`
-  ).join("");
-
-  return `<div class="card card-full">
-    <div class="card-title">Academic</div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Attendance rate</span>
-      </div>
-      <div class="metric-right">
-        ${barFill(a.attendance_rate)}
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Solution rate</span>
-      </div>
-      <div class="metric-right">
-        ${barFill(a.solution_rate)}
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Potential</span>
-        ${infoBtn(a.potential.tooltip)}
-      </div>
-      <div class="metric-right">
-        ${badge(a.potential.level)}
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Progress</span>
-        ${infoBtn(a.progress.tooltip)}
-      </div>
-      <div class="metric-right">
-        ${badge(a.progress.level)}
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Engagement</span>
-        ${infoBtn(a.engagement.tooltip)}
-      </div>
-      <div class="metric-right">
-        ${badge(a.engagement.level)}
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Growth zones</span>
-      </div>
-      <div class="metric-right">
-        <div class="zones-list">${growthHtml}</div>
-      </div>
-    </div>
-
-    <div class="metric-row">
-      <div class="metric-left">
-        <span class="metric-label">Parent</span>
-        ${infoBtn(a.parent.tooltip)}
-      </div>
-      <div class="metric-right">
-        ${badge(a.parent.level)}
-      </div>
-    </div>
-
-    ${renderRawData(a.raw_data)}
-  </div>`;
-}
-
-function render(data) {
-  document.getElementById("card-id").textContent = "ID " + STUDENT_ID;
-
-  const header = `<div class="student-header fade-in">
-    <h1 class="student-name">${data.service.student_name}</h1>
-    <span class="student-meta">${data.service.age} y.o. · ${data.service.city}</span>
-  </div>`;
-
-  const grid = `<div class="grid">
-    ${renderServiceBlock(data.service)}
-    ${renderSalesBlock(data.sales)}
-    ${renderAcademicBlock(data.academic)}
-  </div>`;
-
-  document.getElementById("root").innerHTML = header + grid;
-
-  // Raw data toggle
-  const btn = document.getElementById("rawToggle");
-  const panel = document.getElementById("rawPanel");
-  if (btn && panel) {
-    btn.addEventListener("click", () => {
-      const open = panel.classList.toggle("open");
-      btn.classList.toggle("open", open);
-    });
+async function doSearch(){
+  const val = document.getElementById('amoInput').value.trim();
+  if(!val) return;
+  const root = document.getElementById('root');
+  root.innerHTML = '<div class="empty-state"><span class="spinner"></span> Loading…</div>';
+  try {
+    const lu = await fetch(`/api/card/lookup?amo_id=${encodeURIComponent(val)}`);
+    if(!lu.ok){ const e=await lu.json(); root.innerHTML=`<div class="empty-state"><h2>Not found</h2><p>${e.error||''}</p></div>`; return; }
+    const lu_data = await lu.json(); const {student_id} = lu_data;
+    const dr = await fetch(`/api/card/${student_id}`);
+    if(!dr.ok){ root.innerHTML='<div class="empty-state"><h2>Error loading card</h2></div>'; return; }
+    currentData = await dr.json();
+    currentData._lms_id = lu_data.lms_id;
+    activeZone = null;
+    activeHintTab = {};
+    renderCard();
+  } catch(err){
+    root.innerHTML=`<div class="empty-state"><h2>Error</h2><p>${err.message}</p></div>`;
   }
 }
 
-fetch(`/api/student/${STUDENT_ID}`)
-  .then(r => r.json())
-  .then(render)
-  .catch(err => {
-    document.getElementById("root").innerHTML =
-      `<div class="loading">Failed to load: ${err.message}</div>`;
+function renderCard(){
+  const d = currentData;
+  const s = d.service, sl = d.sales, ac = d.academic;
+
+  // price/lesson
+  const pkg = sl.last_package_check || {};
+  const ppl = pkg.paid_classes && pkg.amount ? (pkg.amount / pkg.paid_classes).toFixed(0) : '—';
+
+  const classLevelBadge = {high:'badge-green',middle:'badge-yellow',low:'badge-red'}[sl.class_level] || 'badge-yellow';
+  const classLevelText  = {high:'High',middle:'Middle',low:'Low'}[sl.class_level] || sl.class_level;
+
+  const details = sl.class_details || {};
+
+  document.getElementById('root').innerHTML = `
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-row">
+      <div class="hero-name">${s.student_name || '—'}</div>
+      <div class="hero-links">
+        ${s.amo_link ? `<a class="hero-btn hero-btn-amo" href="${s.amo_link}" target="_blank">AMO ↗</a>` : ''}
+        <a class="hero-btn hero-btn-lms" href="https://lms.algonova.id/student/default/update/${currentData._lms_id||''}" target="_blank">LMS ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <!-- LEFT SIDEBAR -->
+    <div>
+      <!-- Service panel -->
+      <div class="panel">
+        <div class="panel-title">Service</div>
+        <table class="kv-table">
+          <tr><td>Student</td><td>${s.student_name||'—'}</td></tr>
+          <tr><td>Age</td><td>${s.age||'—'}</td></tr>
+          <tr><td>Course</td><td>${s.current_course||'—'}</td></tr>
+          <tr><td>Tutor</td><td>${s.tutor_name||'—'}</td></tr>
+        </table>
+      </div>
+
+      <!-- Sales panel -->
+      <div class="panel">
+        <div class="panel-title">Sales</div>
+        <div class="big-nums">
+          <div class="big-num-box">
+            <div class="big-num-val">${sl.total_lessons??'—'}</div>
+            <div class="big-num-label">Total lessons</div>
+          </div>
+          <div class="big-num-box">
+            <div class="tooltip-wrap">
+              <div class="big-num-val">${sl.prolongations??'—'}</div>
+              <span class="tip-icon">ⓘ<span class="tip-box">Number of prolongations before the one you are preparing for</span></span>
+            </div>
+            <div class="big-num-label">Prolongations</div>
+          </div>
+          <div class="big-num-box">
+            <div class="big-num-val">$${ppl}</div>
+            <div class="big-num-label">Price / lesson</div>
+          </div>
+        </div>
+        <div class="small-grid">
+          <div class="small-box">
+            <div class="small-box-val">${pkg.paid_classes??'—'}</div>
+            <div class="small-box-label">Classes at last check</div>
+          </div>
+          <div class="small-box">
+            <div class="small-box-val">${pkg.amount?'$'+pkg.amount:'—'}</div>
+            <div class="small-box-label">Amount paid</div>
+          </div>
+          <div class="small-box">
+            <div class="small-box-val">${pkg.date||'—'}</div>
+            <div class="small-box-label">Last check date</div>
+          </div>
+          <div class="small-box">
+            <div class="small-box-val" style="text-transform:capitalize">${sl.class_type||'—'}</div>
+            <div class="small-box-label">Format</div>
+          </div>
+        </div>
+
+        <div class="class-level-header">
+          <div class="panel-title tooltip-wrap" style="margin-bottom:0">
+            Class level
+            <span class="tip-icon">ⓘ<span class="tip-box">From TCM profiling. If the client has high class, it makes sense to offer more courses or more packages. If the class is low — push on empathy and good things about student.</span></span>
+          </div>
+          <span class="badge ${classLevelBadge}">${classLevelText}</span>
+        </div>
+        <table class="class-detail-table">
+          <tr><td>Device</td><td>${details.device_type||'—'}</td></tr>
+          <tr><td>Extra lessons</td><td>${details.additional_lessons||'—'}</td></tr>
+          <tr><td>Parent job</td><td>${details.parents_profession||'—'}</td></tr>
+          <tr><td>School</td><td>${details.school||'—'}</td></tr>
+          <tr><td>Home bg</td><td>${details.home_background||'—'}</td></tr>
+          <tr><td>Parent comm</td><td>${details.parents_communication||'—'}</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div id="academic-col">
+      ${renderAcademic(ac, d.survey_complete, d.survey_last_step)}
+    </div>
+  </div>
+  `;
+}
+
+function renderAcademic(ac, complete, lastStep){
+  if(!complete){
+    const steps = ['Comprehension','Independence','Attention','Stability','Motivation','Motivators','Parent'];
+    const done = lastStep + 1;
+    return `
+    <div class="notice-yellow">
+      <strong>Survey not yet complete</strong> — the tutor has completed ${done} of 7 zones.
+      <br><br>Ask the tutor to finish the survey at <a href="/survey" style="color:inherit;font-weight:700">/survey</a> to unlock the academic profile.
+    </div>`;
+  }
+
+  const barColor = v => v>=75?'var(--gr)':v>=50?'#d97706':'var(--re)';
+
+  // Zone cards HTML
+  const metrics = ['potential','progress','engagement'];
+  const metricTooltips = {
+    potential: 'Calculated based on Comprehension, Independence and Motivation. If the student has cognitive skills AND is motivated, it\'s a clear sign he is going to reach learning goals.',
+    progress:  'Calculated based on Comprehension, Independence and Stability. If the kid has cognitive skills, has good Independence points and learns consistently, it\'s easy for him to show progress. This parameter is very close to the Potential parameter.',
+    engagement:'Calculated based on Attention and Motivation. If the student is attentive and motivated, it means he has an urge to learn. Even if his cognitive skills are low, the urge is enough to gain knowledge.',
+  };
+  const metricLabels = {potential:'Potential',progress:'Progress',engagement:'Engagement'};
+
+  const zonesHtml = metrics.map(key => {
+    const m = ac[key];
+    const levelColor = {high:'badge-green',medium:'badge-yellow',low:'badge-red'}[m.level];
+    const isActive = activeZone === key;
+    const tab = activeHintTab[key] || 'warmup';
+    const tabLabels = {warmup:'Warm-up',urgency:'Urgency',objection:'Objection'};
+    return `
+    <div class="zone-card${isActive?' active-zone':''}" onclick="toggleZone('${key}')">
+      <div class="zone-header">
+        <span class="zone-label-wrap">
+          <span class="zone-label">${metricLabels[key]}</span>
+          <span class="zone-tip-wrap">ⓘ<span class="zone-tip-box">${metricTooltips[key]}</span></span>
+        </span>
+        <span class="badge ${levelColor} zone-level-badge">${m.level.charAt(0).toUpperCase()+m.level.slice(1)}</span>
+      </div>
+      <div class="zone-score" style="color:${m.level==='high'?'var(--gr)':m.level==='low'?'var(--re)':'var(--ye)'}">${m.score.toFixed(2)}</div>
+      <div class="zone-score-sub">score (−1.0 to +1.0)</div>
+      <div class="zone-hint visible">
+        <div class="zone-hint-tabs">
+          ${['warmup','urgency','objection'].map(t=>`<div class="hint-tab${tab===t?' active':''}" onclick="event.stopPropagation();setTab('${key}','${t}')">${tabLabels[t]}</div>`).join('')}
+        </div>
+        <div class="hint-content">${m.ism[tab]||''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Build all checkboxes block
+  const ZONE_DEFS = window._zoneDefs || [];
+  const cbHtml = renderCheckboxBlock(ac);
+
+  // Growth zones
+  const gz = ac.growth_zones;
+  let growthHtml = '';
+  if(gz.zones && gz.zones.length){
+    growthHtml = `
+    <div class="panel-title" style="margin-bottom:12px">⚠️ Growth Zones</div>
+    <div class="growth-row">
+      ${gz.zones.map(z=>{
+        const label = {comprehension:'Comprehension',independence:'Independence',attention:'Attention',stability:'Stability',motivation:'Motivation'}[z]||z;
+        const items = (gz.red_by_zone||{})[label]||[];
+        return `<div class="growth-card">
+          <div class="growth-title">${label}</div>
+          <div class="growth-items">${items.map(i=>`<div class="growth-item">${i}</div>`).join('')||'<div style="font-size:12px;color:#7f1d1d">No red signals selected</div>'}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }
+
+  // Motivators & parent
+  const motivatorsHtml = ac.motivators && ac.motivators.length
+    ? ac.motivators.map(m=>`<div class="motivator-tag"><div class="motivator-tag-title">${m.title}</div><div class="motivator-tag-desc">${m.text}</div></div>`).join('')
+    : '<span style="color:var(--t3);font-size:13px">None selected</span>';
+
+  const parentColor = {green:'badge-green',yellow:'badge-yellow',red:'badge-red'}[ac.parent_color]||'badge-yellow';
+  const parentHtml = ac.parent
+    ? `<div class="parent-value" style="${ac.parent_color==='green'?'background:var(--gr2);color:var(--gr)':ac.parent_color==='red'?'background:var(--re2);color:var(--re)':'background:var(--ye2);color:var(--ye)'}">${ac.parent}</div>`
+    : '<div style="color:var(--t3);font-size:13px;margin-top:10px">No selection</div>';
+
+  return `
+  <!-- Attendance / Solution rates -->
+  <div class="rate-row">
+    <div class="rate-card">
+      <div class="rate-label tooltip-wrap">Attendance
+        <span class="tip-icon">ⓘ<span class="tip-box">Attendance of the current course from LMS.</span></span>
+      </div>
+      <div class="rate-val" style="color:${barColor(ac.attendance_rate)}">${ac.attendance_rate}%</div>
+      <div class="rate-bar-wrap"><div class="rate-bar" style="width:${ac.attendance_rate}%;background:${barColor(ac.attendance_rate)}"></div></div>
+    </div>
+    <div class="rate-card">
+      <div class="rate-label tooltip-wrap">Solution Rate
+        <span class="tip-icon">ⓘ<span class="tip-box">Green, yellow or red relative to average for all students.</span></span>
+      </div>
+      <div class="rate-val" style="color:${barColor(ac.solution_rate)}">${ac.solution_rate}%</div>
+      <div class="rate-bar-wrap"><div class="rate-bar" style="width:${ac.solution_rate}%;background:${barColor(ac.solution_rate)}"></div></div>
+    </div>
+  </div>
+
+  <!-- Zone cards: Potential / Progress / Engagement -->
+  <div class="zones-row">${zonesHtml}</div>
+
+  <!-- Checkboxes block -->
+  <div id="cb-block-wrap">${cbHtml}</div>
+
+  <!-- Growth zones -->
+  ${growthHtml ? `<div class="panel">${growthHtml}</div>` : ''}
+
+  <!-- Motivators + Parent -->
+  <div class="bottom-row">
+    <div class="motivators-card">
+      <div class="panel-title">🎯 Motivators</div>
+      <div class="motivator-tags">${motivatorsHtml}</div>
+    </div>
+    <div class="parent-card">
+      <div class="panel-title">👨‍👩‍👦 Parent Communication</div>
+      ${parentHtml}
+    </div>
+  </div>
+  `;
+}
+
+// Which raw zones contribute to each metric
+const METRIC_SOURCES = {
+  potential:  ['comprehension','independence','motivation'],
+  progress:   ['stability','comprehension','independence'],
+  engagement: ['attention','motivation'],
+};
+
+const ZONE_LABELS = {
+  comprehension:'Comprehension', independence:'Independence',
+  attention:'Attention', stability:'Stability', motivation:'Motivation'
+};
+
+function renderCheckboxBlock(ac){
+  if(!ac) return '';
+  const byZone = {};
+  ['potential','progress','engagement'].forEach(mk=>{
+    const sources = (ac[mk]||{}).sources||{};
+    Object.entries(sources).forEach(([label, items])=>{
+      if(!items.length) return;
+      const zone = items[0].zone;
+      if(!byZone[zone]) byZone[zone] = new Map();
+      items.forEach(it=>{
+        if(!byZone[zone].has(it.text)) byZone[zone].set(it.text, it);
+      });
+    });
   });
+
+  const highlightSets = {};
+  ['potential','progress','engagement'].forEach(mk=>{
+    const set = new Set();
+    const sources = (ac[mk]||{}).sources||{};
+    Object.values(sources).forEach(items=>{
+      items.forEach(it=>set.add(`${it.zone}_${it.index}`));
+    });
+    highlightSets[mk] = set;
+  });
+  window._highlightSets = highlightSets;
+
+  const zones = ['comprehension','independence','attention','stability','motivation'];
+  const icons = {comprehension:'🧠',independence:'🚀',attention:'👁️',stability:'📈',motivation:'⚡'};
+
+  let zoneGroups = '';
+  zones.forEach(z=>{
+    const map = byZone[z];
+    if(!map || map.size===0) return;
+    let items = '';
+    map.forEach(it=>{
+      const wClass = it.weight===2?'w2':it.weight===1?'w1':'wn';
+      const key = `${z}_${it.index}`;
+      let itemClass = wClass;
+      if(activeZone){
+        itemClass += highlightSets[activeZone]&&highlightSets[activeZone].has(key)?' highlighted':' dimmed';
+      }
+      items += `<div class="cb-item ${itemClass}"><div class="cb-item-dot"></div><div class="cb-item-text">${it.text}</div></div>`;
+    });
+    zoneGroups += `<div class="cb-zone-group"><div class="cb-zone-label"><span class="zone-icon">${icons[z]}</span>${ZONE_LABELS[z]}</div><div class="cb-items">${items}</div></div>`;
+  });
+
+  return `<div class="cb-block">
+    <div class="cb-block-header">
+      <div class="cb-block-title">Behavioural Signals</div>
+      <div class="cb-block-hint">${activeZone ? `Highlighted: signals contributing to <strong>${activeZone.charAt(0).toUpperCase()+activeZone.slice(1)}</strong>` : 'Click a zone above to highlight contributing signals'}</div>
+    </div>
+    <div class="cb-zones-grid">${zoneGroups}</div>
+  </div>`;
+}
+
+function toggleZone(key){
+  if(activeZone===key) activeZone=null;
+  else activeZone=key;
+  // Update active border on zone cards
+  document.querySelectorAll('.zone-card').forEach(el=>{
+    const k = el.getAttribute('onclick').match(/toggleZone\('(\w+)'/);
+    if(k) el.classList.toggle('active-zone', k[1]===activeZone);
+  });
+  // Re-render only the cb-block
+  const cbWrap = document.getElementById('cb-block-wrap');
+  if(cbWrap) cbWrap.innerHTML = renderCheckboxBlock(currentData.academic);
+}
+
+function setTab(zone, tab){
+  activeHintTab[zone]=tab;
+  const ac = currentData.academic;
+  document.getElementById('academic-col').innerHTML = renderAcademic(ac, currentData.survey_complete, currentData.survey_last_step);
+}
 </script>
 </body>
 </html>

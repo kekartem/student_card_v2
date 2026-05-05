@@ -1,294 +1,222 @@
-from flask import Flask, render_template, jsonify
+# app.py — Flask routes
+import re
 import json
+from flask import Flask, render_template, request, jsonify
+from database import init_db, find_student_by_lms_id, find_student_by_amo_id, \
+    get_survey_progress, get_survey_responses, save_zone
+from content import ZONE_ORDER, ZONE_META, CHECKBOXES, MOTIVATORS, PARENT_OPTIONS, compute_academics
 
 app = Flask(__name__)
 
-# ─── DATA LAYER (stubs — replace with real connectors later) ──────────────────
+# ── AMO stub data (keyed by lms_id) ─────────────────────────────────────────
 
-def get_amo_data(student_id: str) -> dict:
-    """Stub: replace with AMO CRM API call"""
-    return {
+AMO_DATA = {
+    "100415349": {
         "student_name": "Bintang Pratama",
-        "parent_name": "Dewi Pratama",
         "age": 12,
-        "city": "Surabaya",
-        "current_course": "Roblox",
-        "class_level": "middle",
-        "last_package_check": {
-            "date": "2025-03-15",
-            "paid_classes": 16
+        "current_course": "Roblox — Level 2",
+        "class_level": "high",
+        "tutor_name": "Anya Kuznetsova",
+        "last_package_check": {"date": "2025-03-15", "paid_classes": 16, "amount": 320},
+        "total_lessons": 48,
+        "class_type": "individual",
+        "prolongations": 3,
+        "amo_link": "https://app.kommo.com/leads/detail/69c92748dcb57fafabddbfd0",
+        "attendance_rate": 92,
+        "solution_rate": 78,
+        "class_details": {
+            "device_type": "iPad + keyboard",
+            "additional_lessons": "Extra session on Fridays",
+            "parents_profession": "Engineer / Teacher",
+            "school": "International school",
+            "home_background": "Quiet workspace, supportive",
+            "parents_communication": "Active via WhatsApp",
         },
-        "total_lessons": 47,
+    },
+    "100222679": {
+        "student_name": "Sari Dewi",
+        "age": 10,
+        "current_course": "Scratch — Level 1",
+        "class_level": "middle",
+        "tutor_name": "Pavel Orlov",
+        "last_package_check": {"date": "2025-02-10", "paid_classes": 8, "amount": 160},
+        "total_lessons": 24,
+        "class_type": "group",
+        "prolongations": 1,
+        "amo_link": "https://app.kommo.com/leads/detail/68483311a3f14398e67151d2",
+        "attendance_rate": 67,
+        "solution_rate": 55,
+        "class_details": {
+            "device_type": "Laptop (Windows)",
+            "additional_lessons": "None",
+            "parents_profession": "Business owner",
+            "school": "State school",
+            "home_background": "Shared room, some distractions",
+            "parents_communication": "Responds slowly",
+        },
+    },
+    "100333626": {
+        "student_name": "Rizky Aditya",
+        "age": 14,
+        "current_course": "Python — Level 3",
+        "class_level": "low",
+        "tutor_name": "Maria Sokolova",
+        "last_package_check": {"date": "2025-04-01", "paid_classes": 12, "amount": 200},
+        "total_lessons": 36,
         "class_type": "individual",
         "prolongations": 2,
-        "amo_link": "https://amo.example.com/contacts/12345"
-    }
-
-def get_lms_data(student_id: str) -> dict:
-    """Stub: replace with LMS API call"""
-    return {
-        "tutor_name": "Sarah Mitchell",
-        "attendance_rate": 87,
-        "solution_rate": 74
-    }
-
-def get_survey_data(student_id: str) -> dict:
-    """
-    Stub: replace with CSV / Google Sheets read.
-    
-    Checkbox groups (10 per zone, up to 3 selected):
-      comprehension  → Cognitive barrier
-      independence   → Executive barrier
-      attention      → Behavioural barrier
-      stability      → Systemic barrier
-      motivation     → Motivational barrier
-
-    Weights: green=+2, yellow=+1, red=-2
-    Normalised score per group: sum / max_possible (6 if 3 greens)
-    
-    Computed metrics:
-      Potential    = 0.5 * comprehension_score + 0.5 * independence_score
-      Progress     = 0.4 * comprehension_score + 0.3 * stability_score + 0.3 * independence_score
-      Engagement   = 0.6 * attention_score + 0.4 * motivation_score
-    
-    Growth zones: groups where normalised score < 0.6, pick 2 lowest.
-    Parent: standalone rating.
-    """
-
-    # Raw checkbox selections per zone (indices within each group's 10 items)
-    # Green items: 0-3, Yellow: 4-6, Red: 7-9
-    selected_checkboxes = {
-        "comprehension": [1, 4, 7],   # 1 green, 1 yellow, 1 red → score = (2+1-2)/6 = 0.17
-        "independence":  [0, 4, 5],   # 1 green, 2 yellow       → score = (2+1+1)/6 = 0.67
-        "attention":     [0, 1, 4],   # 2 green, 1 yellow        → score = (2+2+1)/6 = 0.83
-        "stability":     [7, 8, 4],   # 0 green, 1 yellow, 2 red → score = (1-2-2)/6 = -0.50
-        "motivation":    [2, 5, 6],   # 1 green, 2 yellow        → score = (2+1+1)/6 = 0.67
-    }
-
-    def score(selections):
-        total = 0
-        for i in selections:
-            if i <= 3:   total += 2   # green
-            elif i <= 6: total += 1   # yellow
-            else:        total -= 2   # red
-        return round(total / 6, 3)
-
-    scores = {k: score(v) for k, v in selected_checkboxes.items()}
-
-    # Composite metrics
-    potential  = round(0.5 * scores["comprehension"] + 0.5 * scores["independence"], 3)
-    progress   = round(0.4 * scores["comprehension"] + 0.3 * scores["stability"] + 0.3 * scores["independence"], 3)
-    engagement = round(0.6 * scores["attention"]     + 0.4 * scores["motivation"], 3)
-
-    def level_3(score, labels):
-        """Map normalised score to 3-level label"""
-        if score >= 0.6:   return labels[0]
-        elif score >= 0.0: return labels[1]
-        else:              return labels[2]
-
-    potential_label  = level_3(potential,  ["high", "medium", "low"])
-    progress_label   = level_3(progress,   ["strong", "stable", "weak"])
-    engagement_label = level_3(engagement, ["high", "medium", "low"])
-
-    # Growth zones: zones scoring < 0.6, pick 2 lowest
-    barrier_scores = {
-        "cognitive":     scores["comprehension"],
-        "executive":     scores["independence"],
-        "behavioural":   scores["attention"],
-        "systemic":      scores["stability"],
-        "motivational":  scores["motivation"],
-    }
-    below_threshold = {k: v for k, v in barrier_scores.items() if v < 0.6}
-    growth_zones = sorted(below_threshold, key=lambda k: below_threshold[k])[:2]
-
-    # Checkboxes grouped for raw data display
-    checkbox_definitions = {
-        "comprehension": {
-            "label": "Comprehension",
-            "items": [
-                {"text": "Grasps new material quickly and applies it immediately", "color": "green"},
-                {"text": "Understands after 1 explanation and retains the logic", "color": "green"},
-                {"text": "Confidently transfers knowledge to new tasks", "color": "green"},
-                {"text": "Asks deep 'why' questions", "color": "green"},
-                {"text": "Understands after examples, with a slight delay", "color": "yellow"},
-                {"text": "Understands the algorithm but not the reasoning", "color": "yellow"},
-                {"text": "Can repeat but not always apply independently", "color": "yellow"},
-                {"text": "Gets confused when task phrasing changes", "color": "red"},
-                {"text": "Does not connect new topics to previous ones", "color": "red"},
-                {"text": "Requires repeated explanations of basics", "color": "red"},
-            ]
+        "amo_link": "https://app.kommo.com/leads/detail/69b23a333fc114b8a9d51cdf",
+        "attendance_rate": 44,
+        "solution_rate": 38,
+        "class_details": {
+            "device_type": "Desktop PC",
+            "additional_lessons": "Occasional weekends",
+            "parents_profession": "Doctor / Homemaker",
+            "school": "Private school",
+            "home_background": "Good setup, motivated parents",
+            "parents_communication": "Very active, calls regularly",
         },
-        "independence": {
-            "label": "Independence",
-            "items": [
-                {"text": "Finds solutions independently without hints", "color": "green"},
-                {"text": "Corrects mistakes without external help", "color": "green"},
-                {"text": "Builds solution steps on their own", "color": "green"},
-                {"text": "Works confidently on novel tasks", "color": "green"},
-                {"text": "Sometimes needs guidance at the start", "color": "yellow"},
-                {"text": "Acts independently but slowly and cautiously", "color": "yellow"},
-                {"text": "May get stuck without step clarification", "color": "yellow"},
-                {"text": "Does not start a task without an explicit hint", "color": "red"},
-                {"text": "Constantly needs steps checked", "color": "red"},
-                {"text": "Avoids solving difficult tasks independently", "color": "red"},
-            ]
-        },
-        "attention": {
-            "label": "Attention",
-            "items": [
-                {"text": "Fully engaged throughout the lesson", "color": "green"},
-                {"text": "Initiates discussion and questions themselves", "color": "green"},
-                {"text": "Participates actively without prompting", "color": "green"},
-                {"text": "Sustains lesson pace", "color": "green"},
-                {"text": "Engages when asked by teacher", "color": "yellow"},
-                {"text": "Occasionally distracted but returns", "color": "yellow"},
-                {"text": "Participates selectively in activities", "color": "yellow"},
-                {"text": "Frequently loses attention", "color": "red"},
-                {"text": "Avoids active participation", "color": "red"},
-                {"text": "Formally present but not engaged", "color": "red"},
-            ]
-        },
-        "stability": {
-            "label": "Stability",
-            "items": [
-                {"text": "Consistently consolidates material after lessons", "color": "green"},
-                {"text": "Rarely makes recurring mistakes", "color": "green"},
-                {"text": "Confidently retains previous topics", "color": "green"},
-                {"text": "Maintains progress between sessions", "color": "green"},
-                {"text": "Sometimes needs review for consolidation", "color": "yellow"},
-                {"text": "Retention depends on topic complexity", "color": "yellow"},
-                {"text": "Makes inconsistent errors", "color": "yellow"},
-                {"text": "Quickly forgets covered material", "color": "red"},
-                {"text": "Errors repeat from lesson to lesson", "color": "red"},
-                {"text": "Progress is unstable without constant review", "color": "red"},
-            ]
-        },
-        "motivation": {
-            "label": "Motivation",
-            "items": [
-                {"text": "Stays interested even during difficult tasks", "color": "green"},
-                {"text": "Works calmly through challenges", "color": "green"},
-                {"text": "Demonstrates intrinsic motivation", "color": "green"},
-                {"text": "Responsibly completes tasks to the end", "color": "green"},
-                {"text": "Motivation depends on topic", "color": "yellow"},
-                {"text": "Sometimes needs external stimulation", "color": "yellow"},
-                {"text": "May lose energy on difficult tasks", "color": "yellow"},
-                {"text": "Quickly loses interest when tasks get hard", "color": "red"},
-                {"text": "Avoids difficult tasks", "color": "red"},
-                {"text": "Gives up at the first failure", "color": "red"},
-            ]
-        },
-    }
-
-    # Build raw data for display
-    raw_data = {}
-    for zone_key, selections in selected_checkboxes.items():
-        zone_def = checkbox_definitions[zone_key]
-        checked_items = []
-        for i in selections:
-            item = zone_def["items"][i].copy()
-            item["index"] = i
-            checked_items.append(item)
-        # Sort: green first, then yellow, then red
-        order = {"green": 0, "yellow": 1, "red": 2}
-        checked_items.sort(key=lambda x: order[x["color"]])
-        raw_data[zone_key] = {
-            "label": zone_def["label"],
-            "score": scores[zone_key],
-            "items": checked_items
-        }
-
-    return {
-        "potential":       {"level": potential_label,  "score": potential},
-        "progress":        {"level": progress_label,   "score": progress},
-        "engagement":      {"level": engagement_label, "score": engagement},
-        "growth_zones":    growth_zones,
-        "parent":          "warm",
-        "raw_data":        raw_data,
-        "barrier_scores":  barrier_scores,
-    }
-
-
-# ─── INTERPRETATION LAYER ─────────────────────────────────────────────────────
-
-TOOLTIP_COPY = {
-    "potential": {
-        "high":   "Student rapidly absorbs new material and confidently transfers knowledge to new tasks. Given the right pace, they can move ahead of the curriculum.",
-        "medium": "Student steadily masters the curriculum at the current pace, handles tasks well with sufficient practice and explanation.",
-        "low":    "Student absorbs material at a slower pace and needs regular support and repetition to consolidate basic concepts.",
     },
-    "progress": {
-        "strong": "Consistent improvement in understanding and task performance. Student consolidates new skills and reduces error rate.",
-        "stable": "Student maintains current level and gradually acquires new material without marked acceleration or slowdown.",
-        "weak":   "Learning dynamics are unstable: material is absorbed in fragments, some topics require revisiting.",
-    },
-    "engagement": {
-        "high":   "Student actively participates in lessons, asks questions and joins discussions without external prompting.",
-        "medium": "Student engages when prompted by the teacher, may lose focus occasionally but returns to tasks.",
-        "low":    "Student is often passive during lessons, rarely initiates participation and needs constant external engagement.",
-    },
-    "growth_zones": {
-        "cognitive":    "Student has difficulties understanding new material and applying knowledge in modified tasks.",
-        "executive":    "Student struggles with independently starting and completing tasks without external support.",
-        "behavioural":  "Student frequently loses focus during lessons and doesn't always maintain active participation.",
-        "systemic":     "Student doesn't consolidate material stably enough, causing some knowledge to fade over time.",
-        "motivational": "Student reduces activity when challenges arise and needs external stimulation to continue.",
-    },
-    "parent": {
-        "warm":    "Communication with parents is constructive; there is trust and readiness for continued learning.",
-        "neutral": "Communication is stable with no marked difficulties; discussions happen in a standard format.",
-        "complex": "Communication requires additional argumentation and negotiation of learning decisions.",
-    }
 }
 
-def build_card(student_id: str) -> dict:
-    """Assemble final card data from all sources"""
-    amo   = get_amo_data(student_id)
-    lms   = get_lms_data(student_id)
-    survey = get_survey_data(student_id)
+# ── Helper ───────────────────────────────────────────────────────────────────
 
-    return {
-        "service": {
-            "student_name":   amo["student_name"],
-            "parent_name":    amo["parent_name"],
-            "age":            amo["age"],
-            "city":           amo["city"],
-            "current_course": amo["current_course"],
-            "tutor_name":     lms["tutor_name"],
-            "amo_link":       amo["amo_link"],
-        },
-        "sales": {
-            "class_level":          amo["class_level"],
-            "last_package_check":   amo["last_package_check"],
-            "total_lessons":        amo["total_lessons"],
-            "class_type":           amo["class_type"],
-            "prolongations":        amo["prolongations"],
-        },
-        "academic": {
-            "attendance_rate": lms["attendance_rate"],
-            "solution_rate":   lms["solution_rate"],
-            "potential":       {**survey["potential"],  "tooltip": TOOLTIP_COPY["potential"][survey["potential"]["level"]]},
-            "progress":        {**survey["progress"],   "tooltip": TOOLTIP_COPY["progress"][survey["progress"]["level"]]},
-            "engagement":      {**survey["engagement"], "tooltip": TOOLTIP_COPY["engagement"][survey["engagement"]["level"]]},
-            "growth_zones":    [
-                {"key": z, "tooltip": TOOLTIP_COPY["growth_zones"][z]}
-                for z in survey["growth_zones"]
-            ],
-            "parent":          {"level": survey["parent"], "tooltip": TOOLTIP_COPY["parent"][survey["parent"]]},
-            "raw_data":        survey["raw_data"],
-        }
-    }
+def extract_lms_id(url):
+    m = re.search(r"/student/default/update/(\d+)", url)
+    return m.group(1) if m else None
 
-
-# ─── ROUTES ───────────────────────────────────────────────────────────────────
+# ── Page routes ──────────────────────────────────────────────────────────────
 
 @app.route("/")
-def index():
+def card_page():
     return render_template("card.html")
 
-@app.route("/api/student/<student_id>")
-def student_api(student_id):
-    return jsonify(build_card(student_id))
+@app.route("/survey")
+def survey_page():
+    return render_template("survey.html")
+
+# ── Survey API ───────────────────────────────────────────────────────────────
+
+@app.route("/api/survey/lookup")
+def survey_lookup():
+    url = request.args.get("url", "").strip()
+    lms_id = extract_lms_id(url)
+    if not lms_id:
+        return jsonify({"error": "Could not extract LMS ID from URL"}), 400
+    student = find_student_by_lms_id(lms_id)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+    prog = get_survey_progress(student["id"])
+    return jsonify({
+        "student_id":   student["id"],
+        "lms_id":       student["lms_id"],
+        "name":         student["name"],
+        "last_step":    prog["last_step"],
+        "is_complete":  prog["is_complete"],
+    })
+
+@app.route("/api/survey/<int:sid>/responses")
+def survey_responses(sid):
+    data = get_survey_responses(sid)
+    return jsonify(data)
+
+@app.route("/api/survey/<int:sid>/save", methods=["POST"])
+def survey_save(sid):
+    body = request.get_json(force=True) or {}
+    zone = body.get("zone")
+    selections = body.get("selections", [])
+    if zone not in ZONE_ORDER:
+        return jsonify({"error": "Invalid zone"}), 400
+    save_zone(sid, zone, selections)
+    prog = get_survey_progress(sid)
+    return jsonify({"ok": True, "is_complete": prog["is_complete"]})
+
+# ── Card API ─────────────────────────────────────────────────────────────────
+
+@app.route("/api/card/lookup")
+def card_lookup():
+    amo_id = request.args.get("amo_id", "").strip()
+    if not amo_id:
+        return jsonify({"error": "amo_id required"}), 400
+    student = find_student_by_amo_id(amo_id)
+    if not student:
+        return jsonify({"error": "Student not found"}), 404
+    return jsonify({"student_id": student["id"], "lms_id": student["lms_id"]})
+
+@app.route("/api/card/<int:sid>")
+def card_data(sid):
+    # Find student row by id
+    from database import get_conn
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM students WHERE id = ?", (sid,)).fetchone()
+    conn.close()
+    if not row:
+        return jsonify({"error": "Student not found"}), 404
+
+    student = dict(row)
+    lms_id  = student["lms_id"]
+    amo     = AMO_DATA.get(lms_id, {})
+    prog    = get_survey_progress(sid)
+
+    service = {
+        "student_name": amo.get("student_name", student["name"]),
+        "age":          amo.get("age"),
+        "current_course": amo.get("current_course"),
+        "tutor_name":   amo.get("tutor_name"),
+        "amo_link":     amo.get("amo_link", student.get("amo_url", "")),
+    }
+
+    pkg = amo.get("last_package_check", {})
+    sales = {
+        "class_level":        amo.get("class_level"),
+        "last_package_check": pkg,
+        "total_lessons":      amo.get("total_lessons"),
+        "class_type":         amo.get("class_type"),
+        "prolongations":      amo.get("prolongations"),
+        "class_details":      amo.get("class_details", {}),
+    }
+
+    academic = None
+    if prog["is_complete"]:
+        responses = get_survey_responses(sid)
+        academic = compute_academics(
+            responses,
+            amo.get("attendance_rate", 0),
+            amo.get("solution_rate", 0),
+            service["student_name"],
+        )
+
+    return jsonify({
+        "service":        service,
+        "sales":          sales,
+        "academic":       academic,
+        "survey_complete": prog["is_complete"],
+        "survey_last_step": prog["last_step"],
+    })
+
+# ── Content API (for survey UI) ──────────────────────────────────────────────
+
+@app.route("/api/content/zones")
+def content_zones():
+    """Return all zone definitions for the survey UI."""
+    zones = []
+    for key in ZONE_ORDER:
+        meta = ZONE_META[key]
+        entry = {"key": key, **meta}
+        if meta["weighted"]:
+            entry["checkboxes"] = [
+                {"weight": w, "text": t, "index": i}
+                for i, (w, t) in enumerate(CHECKBOXES[key])
+            ]
+        elif key == "motivators":
+            entry["options"] = MOTIVATORS
+        elif key == "parent":
+            entry["options"] = PARENT_OPTIONS
+        zones.append(entry)
+    return jsonify(zones)
+
+# ── Boot ─────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    init_db()
+    app.run(debug=True, port=5000)

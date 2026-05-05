@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutor Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0EEE9;--sur:#FFFFFF;--s2:#F7F6F3;--bd:#DDD9D2;--bd2:#E8E5DF;
+  --t1:#1A1814;--t2:#4A4740;--t3:#8A877F;--t4:#B8B5AE;
+  --acc:#3461E8;--acc2:#EBF0FF;
+  --gr:#166534;--gr2:#DCFCE7;--gr3:#86EFAC;
+  --ye:#92400E;--ye2:#FEF3C7;--ye3:#FCD34D;
+  --re:#991B1B;--re2:#FEE2E2;--re3:#FCA5A5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--t1);font-size:14px;min-height:100vh;padding-bottom:90px}
+.topbar{background:#141210;height:52px;display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:100}
+.topbar-link{color:#8a8780;font-size:13px;text-decoration:none;white-space:nowrap}
+.topbar-link:hover{color:#fff}
+.topbar-search-wrap{display:flex;gap:8px;flex:1;max-width:520px}
+.topbar-lms-input{flex:1;background:#2a2722;border:1px solid #3a3733;border-radius:8px;padding:0 12px;height:34px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;outline:none}
+.topbar-lms-input::placeholder{color:#6b6760}
+.topbar-lms-input:focus{border-color:#3461E8}
+.topbar-find-btn{background:#3461E8;color:#fff;border:none;border-radius:8px;padding:0 16px;height:34px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.topbar-find-btn:hover{background:#2550d0}
+.topbar-student-info{display:flex;align-items:center;gap:10px;margin-left:4px}
+.topbar-student-name{color:#fff;font-size:13px;font-weight:600;white-space:nowrap}
+.topbar-student-step{color:#8a8780;font-size:12px;white-space:nowrap}
+.page{max-width:820px;margin:0 auto;padding:28px 20px}
+
+/* search moved to topbar */
+
+/* Progress bar */
+.progress-wrap{margin-bottom:24px}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.progress-label{font-size:13px;font-weight:600;color:var(--t2)}
+.progress-count{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--t3)}
+.progress-bar-bg{height:6px;background:var(--bd);border-radius:6px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--acc);border-radius:6px;transition:width .3s}
+
+/* Zone card (step mode) */
+.zone-card{background:var(--sur);border:2px solid var(--bd);border-radius:16px;padding:24px;transition:border-color .2s}
+.zone-card.has-selection{border-color:var(--gr3)}
+.zone-card-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.zone-icon{font-size:24px}
+.zone-card-title{font-size:20px;font-weight:700}
+.zone-card-sub{font-size:13px;color:var(--t3);margin-top:2px}
+.zone-counter{margin-left:auto;background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--t3)}
+.zone-counter.complete{background:var(--gr2);border-color:var(--gr3);color:var(--gr)}
+
+/* Checkbox sections */
+.cb-section{margin-bottom:18px}
+.cb-section-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;display:flex;align-items:center;gap:6px;margin-bottom:10px;color:var(--t3)}
+.dot-green{width:10px;height:10px;border-radius:50%;background:var(--gr);display:inline-block;flex-shrink:0}
+.dot-yellow{width:10px;height:10px;border-radius:50%;background:#d97706;display:inline-block;flex-shrink:0}
+.dot-red{width:10px;height:10px;border-radius:50%;background:var(--re);display:inline-block;flex-shrink:0}
+.cb-list{display:flex;flex-direction:column;gap:6px}
+.cb-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--bd);background:var(--s2);cursor:pointer;transition:all .15s}
+.cb-item:hover:not(.locked){border-color:#aaa;background:#eeecea}
+.cb-item.checked.green{background:var(--gr2);border-color:var(--gr3)}
+.cb-item.checked.yellow{background:var(--ye2);border-color:var(--ye3)}
+.cb-item.checked.red{background:var(--re2);border-color:var(--re3)}
+.cb-item.locked{opacity:.35;pointer-events:none}
+.cb-checkbox{width:18px;height:18px;border-radius:5px;border:2px solid var(--bd);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cb-item.checked .cb-checkbox{background:var(--acc);border-color:var(--acc)}
+.cb-item.checked .cb-checkbox::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.cb-text{font-size:13px;color:var(--t2);line-height:1.4}
+
+/* Motivators grid */
+.motivator-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mot-card{background:var(--s2);border:2px solid var(--bd);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s}
+.mot-card:hover{border-color:#aaa}
+.mot-card.checked{background:var(--acc2);border-color:var(--acc)}
+.mot-title{font-size:14px;font-weight:700;margin-bottom:4px}
+.mot-desc{font-size:12px;color:var(--t3);line-height:1.4}
+.mot-card.checked .mot-desc{color:#3461e8aa}
+
+/* Parent radio cards */
+.parent-list{display:flex;flex-direction:column;gap:8px}
+.par-card{background:var(--s2);border:2px solid var(--bd);border-radius:12px;padding:14px;cursor:pointer;transition:all .15s;font-size:13px}
+.par-card:hover{border-color:#aaa}
+.par-card.checked.green{background:var(--gr2);border-color:var(--gr3);color:var(--gr)}
+.par-card.checked.yellow{background:var(--ye2);border-color:var(--ye3);color:var(--ye)}
+.par-card.checked.red{background:var(--re2);border-color:var(--re3);color:var(--re)}
+
+/* All mode grid */
+.all-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.all-zone-card{background:var(--sur);border:2px solid var(--bd);border-radius:14px;padding:16px}
+.all-zone-card.has-selection{border-color:var(--gr3)}
+.all-zone-title{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.all-zone-counter{margin-left:auto;font-size:11px;background:var(--s2);border:1px solid var(--bd2);border-radius:20px;padding:2px 8px;color:var(--t3)}
+.all-cb-item{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:8px;border:1.5px solid var(--bd);background:var(--s2);cursor:pointer;margin-bottom:4px;transition:all .15s;font-size:12px;color:var(--t2)}
+.all-cb-item:last-child{margin-bottom:0}
+.all-cb-item:hover:not(.locked){border-color:#aaa}
+.all-cb-item.checked.green{background:var(--gr2);border-color:var(--gr3)}
+.all-cb-item.checked.yellow{background:var(--ye2);border-color:var(--ye3)}
+.all-cb-item.checked.red{background:var(--re2);border-color:var(--re3)}
+.all-cb-item.locked{opacity:.35;pointer-events:none}
+.all-cb-check{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--bd);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+.all-cb-item.checked .all-cb-check{background:var(--acc);border-color:var(--acc)}
+.all-cb-item.checked .all-cb-check::after{content:'✓';color:#fff;font-size:9px;font-weight:700}
+.section-divider{height:1px;background:var(--bd2);margin:8px 0}
+
+/* Sticky nav */
+.sticky-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bd);padding:12px 20px;display:flex;align-items:center;gap:12px;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.06)}
+.nav-hint{flex:1;font-size:13px;color:var(--t3)}
+.nav-saved{font-size:13px;color:var(--gr);font-weight:600;opacity:0;transition:opacity .3s}
+.nav-saved.show{opacity:1}
+.nav-btn{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:14px;font-weight:600;cursor:pointer}
+.nav-btn:hover{background:#2550d0}
+.nav-btn.secondary{background:var(--s2);color:var(--t2);border:1.5px solid var(--bd)}
+.nav-btn.secondary:hover{background:var(--bg)}
+.nav-btn:disabled{opacity:.4;pointer-events:none}
+.nav-btn.save-all{background:#166534;min-width:160px}
+.nav-btn.save-all:hover{background:#15803d}
+
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="topbar-link" href="/">← Student Card</a>
+  <div class="topbar-search-wrap">
+    <input class="topbar-lms-input" id="lmsInput" type="text"
+      placeholder="Paste LMS URL to find student…"
+      onkeydown="if(event.key==='Enter')doLookup()">
+    <button class="topbar-find-btn" onclick="doLookup()">Find</button>
+  </div>
+  <div class="topbar-student-info" id="topbarStudentInfo"></div>
+</div>
+
+<div class="page">
+  <!-- Search -->
+  <div id="surveyArea"></div>
+</div>
+
+<!-- Sticky nav (hidden until survey loaded) -->
+<div class="sticky-nav" id="stickyNav" style="display:none">
+  <div class="nav-hint" id="navHint"></div>
+  <div class="nav-saved" id="navSaved">✓ Saved</div>
+  <button class="nav-btn secondary" id="btnBack" onclick="goBack()" style="display:none">← Back</button>
+  <button class="nav-btn" id="btnNext" onclick="goNext()">Next →</button>
+</div>
+
+<script>
+let zones = [];       // from /api/content/zones
+let student = null;   // {student_id, lms_id, name, last_step, is_complete}
+let responses = {};   // zone → [indices]
+let currentStep = 0;
+let mode = 'step';    // 'step' | 'all'
+let saving = false;
+
+const ZONE_COLORS = {
+  2:'green', 1:'yellow', '-2':'red',
+};
+
+async function init(){
+  const r = await fetch('/api/content/zones');
+  zones = await r.json();
+}
+init();
+
+async function doLookup(){
+  const url = document.getElementById('lmsInput').value.trim();
+  if(!url) return;
+  // topbar info element grabbed below
+  const info = document.getElementById('topbarStudentInfo');
+  if(info) info.innerHTML = '<span class="spinner" style="border-top-color:#fff"></span>';
+  try{
+    const r = await fetch(`/api/survey/lookup?url=${encodeURIComponent(url)}`);
+    if(!r.ok){ const e=await r.json(); throw new Error(e.error||'Not found'); }
+    student = await r.json();
+    // Load responses
+    const rr = await fetch(`/api/survey/${student.student_id}/responses`);
+    responses = await rr.json();
+    if(info) info.innerHTML = `<span class="topbar-student-name">${student.name}</span><span class="topbar-student-step">${student.is_complete?'All 7 steps done':'Step '+(student.last_step+1)+' / 7'}</span>`;
+    loadSurvey();
+  }catch(err){
+    if(info) info.innerHTML = `<span style="color:#fca5a5;font-size:13px">Not found</span>`;
+  }
+}
+
+function loadSurvey(){
+  if(student.is_complete){
+    mode='all';
+    renderAll();
+  } else {
+    mode='step';
+    currentStep = Math.max(0, student.last_step + 1);
+    renderStep();
+  }
+}
+
+/* ── STEP MODE ── */
+function renderStep(){
+  const zone = zones[currentStep];
+  if(!zone){ renderDone(); return; }
+  const sels = responses[zone.key]||[];
+
+  document.getElementById('surveyArea').innerHTML = `
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label">Step ${currentStep+1} of ${zones.length}</span>
+        <span class="progress-count">${currentStep}/${zones.length}</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width:${currentStep/zones.length*100}%"></div>
+      </div>
+    </div>
+    <div class="zone-card${sels.length>0?' has-selection':''}" id="zoneCard">
+      <div class="zone-card-header">
+        <div class="zone-icon">${zone.icon}</div>
+        <div>
+          <div class="zone-card-title">${zone.label}</div>
+          <div class="zone-card-sub">${zone.subtitle}</div>
+        </div>
+        <div class="zone-counter${sels.length>=zone.max_selections?' complete':''}" id="counter">
+          ${sels.length}/${zone.max_selections}
+        </div>
+      </div>
+      <div id="zoneBody">${renderZoneBody(zone, sels)}</div>
+    </div>
+  `;
+
+  updateNav(zone, sels);
+}
+
+function renderZoneBody(zone, sels){
+  if(zone.weighted){
+    const greens = zone.checkboxes.filter(c=>c.weight===2);
+    const yellows = zone.checkboxes.filter(c=>c.weight===1);
+    const reds    = zone.checkboxes.filter(c=>c.weight===-2);
+    return [
+      {label:'Strong signals',dot:'dot-green',items:greens},
+      {label:'Neutral signals',dot:'dot-yellow',items:yellows},
+      {label:'Weak signals',dot:'dot-red',items:reds},
+    ].map(sec=>`
+      <div class="cb-section">
+        <div class="cb-section-label"><span class="${sec.dot}"></span>${sec.label}</div>
+        <div class="cb-list">
+          ${sec.items.map(c=>{
+            const checked=sels.includes(c.index);
+            const locked=!checked && sels.length>=zone.max_selections;
+            const colorClass=ZONE_COLORS[String(c.weight)]||'';
+            return `<div class="cb-item${checked?' checked '+colorClass:''}${locked?' locked':''}" onclick="toggleCheck('${zone.key}',${c.index},${zone.max_selections})">
+              <div class="cb-checkbox"></div>
+              <div class="cb-text">${c.text}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `).join('');
+  }
+  if(zone.key==='motivators'){
+    return `<div class="motivator-grid">
+      ${zone.options.map((m,i)=>`
+        <div class="mot-card${sels.includes(i)?' checked':''}" onclick="toggleCheck('${zone.key}',${i},${zone.max_selections})">
+          <div class="mot-title">${m.title}</div>
+          <div class="mot-desc">${m.text}</div>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  if(zone.key==='parent'){
+    const colorMap=['red','yellow','yellow','green'];
+    return `<div class="parent-list">
+      ${zone.options.map((p,i)=>`
+        <div class="par-card${sels.includes(i)?' checked '+colorMap[i]:''}" onclick="pickParent(${i})">
+          ${p.text}
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  return '';
+}
+
+function toggleCheck(zoneKey, index, maxSel){
+  const sels = responses[zoneKey]||[];
+  const idx = sels.indexOf(index);
+  if(idx>=0){ sels.splice(idx,1); }
+  else if(sels.length < maxSel){ sels.push(index); }
+  responses[zoneKey]=sels;
+  const zone=zones.find(z=>z.key===zoneKey);
+  document.getElementById('zoneBody').innerHTML=renderZoneBody(zone,sels);
+  const card=document.getElementById('zoneCard');
+  if(card) card.className='zone-card'+(sels.length>0?' has-selection':'');
+  const counter=document.getElementById('counter');
+  if(counter){ counter.textContent=`${sels.length}/${zone.max_selections}`; counter.className='zone-counter'+(sels.length>=zone.max_selections?' complete':''); }
+  updateNav(zone,sels);
+}
+
+function pickParent(index){
+  responses['parent']=[index];
+  const zone=zones.find(z=>z.key==='parent');
+  document.getElementById('zoneBody').innerHTML=renderZoneBody(zone,[index]);
+  updateNav(zone,[index]);
+}
+
+function updateNav(zone, sels){
+  const nav=document.getElementById('stickyNav');
+  nav.style.display='flex';
+  const hint=document.getElementById('navHint');
+  const btnBack=document.getElementById('btnBack');
+  const btnNext=document.getElementById('btnNext');
+  btnBack.style.display=currentStep>0?'':'none';
+  const isLast=currentStep===zones.length-1;
+  btnNext.textContent=isLast?'Finish ✓':'Next →';
+  btnNext.className='nav-btn';
+  if(sels.length===0){
+    const minSel = zone.key==='parent'?1:(zone.key==='motivators'?1:1);
+    const maxSel = zone.max_selections;
+    const rangeStr = zone.key==='parent'?'1 option':(zone.key==='motivators'?'1–2 boxes':`1–${maxSel} boxes`);
+    hint.textContent=`Check ${rangeStr} in this category. Please answer honestly, results of this form do not impact your KPI.`;
+    btnNext.disabled=true;
+  } else {
+    const maxSel2 = zone.max_selections;
+    const rangeStr2 = zone.key==='parent'?'1 option':(zone.key==='motivators'?'1–2 boxes':`1–${maxSel2} boxes`);
+    hint.textContent=`Check ${rangeStr2} in this category. Please answer honestly, results of this form do not impact your KPI.`;
+    btnNext.disabled=false;
+  }
+}
+
+async function goNext(){
+  if(saving) return;
+  const zone=zones[currentStep];
+  const sels=responses[zone.key]||[];
+  if(!sels.length) return;
+  saving=true;
+  document.getElementById('btnNext').disabled=true;
+  await saveZone(zone.key, sels);
+  flashSaved();
+  saving=false;
+  if(currentStep<zones.length-1){
+    currentStep++;
+    renderStep();
+  } else {
+    student.is_complete=true;
+    renderAll();
+  }
+}
+
+function goBack(){
+  if(currentStep>0){ currentStep--; renderStep(); }
+}
+
+async function saveZone(zoneKey, sels){
+  await fetch(`/api/survey/${student.student_id}/save`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({zone:zoneKey, selections:sels})
+  });
+}
+
+function flashSaved(){
+  const el=document.getElementById('navSaved');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+function renderDone(){
+  document.getElementById('surveyArea').innerHTML=`
+    <div style="text-align:center;padding:60px 20px;color:var(--t3)">
+      <div style="font-size:40px;margin-bottom:12px">✅</div>
+      <h2 style="color:var(--t1);font-size:22px;margin-bottom:8px">Survey Complete!</h2>
+      <p>All zones have been saved for ${student.name}.</p>
+      <p style="margin-top:8px">The student card is now unlocked.</p>
+    </div>`;
+  document.getElementById('stickyNav').style.display='none';
+}
+
+/* ── ALL MODE ── */
+function renderAll(){
+  document.getElementById('surveyArea').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <h2 style="font-size:18px;font-weight:700">${student.name}</h2>
+        <p style="font-size:13px;color:var(--t3);margin-top:2px">Survey complete — all zones visible and editable</p>
+      </div>
+    </div>
+    <div class="all-grid" id="allGrid">${renderAllGrid()}</div>
+  `;
+  const nav=document.getElementById('stickyNav');
+  nav.style.display='flex';
+  document.getElementById('navHint').textContent='Edit any zone and save all changes at once';
+  document.getElementById('btnBack').style.display='none';
+  document.getElementById('btnNext').textContent='Save changes';
+  document.getElementById('btnNext').className='nav-btn save-all';
+  document.getElementById('btnNext').disabled=false;
+  document.getElementById('btnNext').onclick=saveAll;
+}
+
+function renderAllGrid(){
+  return zones.map(zone=>{
+    const sels=responses[zone.key]||[];
+    return `<div class="all-zone-card${sels.length>0?' has-selection':''}">
+      <div class="all-zone-title">
+        <span>${zone.icon}</span>${zone.label}
+        <span class="all-zone-counter">${sels.length}/${zone.max_selections}</span>
+      </div>
+      ${renderAllZoneBody(zone,sels)}
+    </div>`;
+  }).join('');
+}
+
+function renderAllZoneBody(zone, sels){
+  if(zone.weighted){
+    const greens=zone.checkboxes.filter(c=>c.weight===2);
+    const yellows=zone.checkboxes.filter(c=>c.weight===1);
+    const reds=zone.checkboxes.filter(c=>c.weight===-2);
+    return [
+      {items:greens,colorClass:'green'},
+      {items:yellows,colorClass:'yellow'},
+      {items:reds,colorClass:'red'},
+    ].map((sec,si)=>`
+      ${si>0?'<div class="section-divider"></div>':''}
+      ${sec.items.map(c=>{
+        const checked=sels.includes(c.index);
+        const locked=!checked&&sels.length>=zone.max_selections;
+        return `<div class="all-cb-item${checked?' checked '+sec.colorClass:''}${locked?' locked':''}" onclick="allToggle('${zone.key}',${c.index},${zone.max_selections})">
+          <div class="all-cb-check"></div>${c.text}
+        </div>`;
+      }).join('')}
+    `).join('');
+  }
+  if(zone.key==='motivators'){
+    return zone.options.map((m,i)=>`
+      <div class="all-cb-item${sels.includes(i)?' checked green':''}" onclick="allToggle('${zone.key}',${i},${zone.max_selections})">
+        <div class="all-cb-check"></div><strong>${m.title}</strong>
+      </div>
+    `).join('');
+  }
+  if(zone.key==='parent'){
+    const colorMap=['red','yellow','yellow','green'];
+    return zone.options.map((p,i)=>`
+      <div class="all-cb-item${sels.includes(i)?' checked '+colorMap[i]:''}" onclick="allPickParent(${i})">
+        <div class="all-cb-check"></div>${p.text}
+      </div>
+    `).join('');
+  }
+  return '';
+}
+
+function allToggle(zoneKey, index, maxSel){
+  const sels=responses[zoneKey]||[];
+  const idx=sels.indexOf(index);
+  if(idx>=0) sels.splice(idx,1);
+  else if(sels.length<maxSel) sels.push(index);
+  responses[zoneKey]=sels;
+  document.getElementById('allGrid').innerHTML=renderAllGrid();
+}
+
+function allPickParent(index){
+  responses['parent']=[index];
+  document.getElementById('allGrid').innerHTML=renderAllGrid();
+}
+
+async function saveAll(){
+  if(saving) return;
+  saving=true;
+  document.getElementById('btnNext').disabled=true;
+  document.getElementById('btnNext').textContent='Saving…';
+  for(const zone of zones){
+    const sels=responses[zone.key]||[];
+    if(sels.length>0) await saveZone(zone.key,sels);
+  }
+  saving=false;
+  document.getElementById('btnNext').disabled=false;
+  document.getElementById('btnNext').textContent='Save changes';
+  flashSaved();
+}
+</script>
+</body>
+</html>
